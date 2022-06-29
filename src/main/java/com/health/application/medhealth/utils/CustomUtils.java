@@ -43,7 +43,7 @@ public class CustomUtils {
     }
 
 
-    private static boolean isStringNotNull(String value) {
+    public static boolean isStringNotNull(String value) {
         return isStringNotNull(value, 0);
     }
 

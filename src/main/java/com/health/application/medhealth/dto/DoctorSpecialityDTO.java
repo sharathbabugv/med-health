@@ -5,7 +5,7 @@ public class DoctorSpecialityDTO {
     private String id;
     private String name;
     private String experience;
-    private String education;
+    private String qualification;
 
     public String getId() {
         return id;
@@ -31,11 +31,11 @@ public class DoctorSpecialityDTO {
         this.experience = experience;
     }
 
-    public String getEducation() {
-        return education;
+    public String getQualification() {
+        return qualification;
     }
 
-    public void setEducation(String education) {
-        this.education = education;
+    public void setQualification(String qualification) {
+        this.qualification = qualification;
     }
 }
