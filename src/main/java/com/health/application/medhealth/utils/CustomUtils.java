@@ -5,7 +5,6 @@ import com.health.application.medhealth.dto.DoctorSpecificDTO;
 import com.health.application.medhealth.dto.Patient;
 import com.health.application.medhealth.dto.UserDTO;
 import com.health.application.medhealth.exceptions.UnableToProcessException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -43,9 +42,6 @@ public class CustomUtils {
         throw new UnableToProcessException("Username is either empty or doesn't match the minimum characters of 3");
     }
 
-    public static String encodePassword(String password) {
-        return new BCryptPasswordEncoder().encode(password);
-    }
 
     private static boolean isStringNotNull(String value) {
         return isStringNotNull(value, 0);

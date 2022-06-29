@@ -1,6 +1,5 @@
 package com.health.application.medhealth.controller;
 
-import com.health.application.medhealth.dto.Doctor;
 import com.health.application.medhealth.dto.FetchDetailsDTO;
 import com.health.application.medhealth.dto.Patient;
 import com.health.application.medhealth.dto.UserCreationMessageDTO;
@@ -18,17 +17,6 @@ import org.springframework.web.bind.annotation.*;
 public class PatientController {
 
     private final UserService userService;
-
-    @PostMapping("/register")
-    public ResponseEntity<?> registerPatient(@RequestBody Patient patient) {
-        Patient dto = userService.savePatient(patient);
-        if (dto != null) {
-            UserCreationMessageDTO messageDTO = new UserCreationMessageDTO(dto.getId(), "Patient registered successfully");
-            return new ResponseEntity<>(messageDTO, HttpStatus.CREATED);
-        } else {
-            throw new UnableToProcessException("Patient is not created");
-        }
-    }
 
     @PostMapping("/list")
     public ResponseEntity<?> getUserDetails(@RequestBody FetchDetailsDTO fetchDetailsDTO) {

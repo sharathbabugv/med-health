@@ -39,9 +39,9 @@ public class SecurityConfiguration {
                 .authenticationEntryPoint((req, res, ex) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED, ex.getMessage()));
         http.authorizeRequests()
                 .antMatchers("/api/token").permitAll()
-                .antMatchers("/api/v1/register/**").permitAll()
-                .antMatchers( "/api/doctor/**").hasAnyAuthority("ROLE_DOCTOR")
-                .antMatchers( "/api/patient/**").hasAnyAuthority("ROLE_PATIENT")
+                .antMatchers("/api/register/**").permitAll()
+                .antMatchers("/api/patient/**").hasAnyAuthority("ROLE_PATIENT")
+                .antMatchers("/api/doctor/**").hasAnyAuthority("ROLE_DOCTOR")
                 .anyRequest().authenticated();
         http.addFilter(customAuthFilter);
         http.addFilterBefore(new JwtOncePerRequestFilter(), UsernamePasswordAuthenticationFilter.class);

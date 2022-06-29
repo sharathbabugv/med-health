@@ -2,6 +2,7 @@ package com.health.application.medhealth.services;
 
 import com.health.application.medhealth.dto.Doctor;
 import com.health.application.medhealth.dto.Patient;
+import com.health.application.medhealth.exceptions.UnableToProcessException;
 import com.health.application.medhealth.repository.DoctorRepository;
 import com.health.application.medhealth.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
@@ -43,29 +44,35 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public Patient savePatient(Patient patient) {
         isPatientValid(patient);
-        log.info("Saving new patient {} to the database", patient.getUsername());
-        patient.setPassword(passwordEncoder.encode(patient.getPassword()));
-        return patientRepository.save(patient);
+        if (patient.getId() == null) {
+            log.info("Saving new patient {} to the database", patient.getUsername());
+            patient.setPassword(passwordEncoder.encode(patient.getPassword()));
+            return patientRepository.save(patient);
+        }
+        throw new UnableToProcessException("Id should not be entered, while registering the patient");
     }
 
     @Override
     public Doctor saveDoctor(Doctor doctor) {
         isDoctorValid(doctor);
-        log.info("Saving new doctor {} to the database", doctor.getUsername());
-        doctor.setPassword(passwordEncoder.encode(doctor.getPassword()));
-        return doctorRepository.save(doctor);
+        if (doctor.getId() == null) {
+            log.info("Saving new doctor {} to the database", doctor.getUsername());
+            doctor.setPassword(passwordEncoder.encode(doctor.getPassword()));
+            return doctorRepository.save(doctor);
+        }
+        throw new UnableToProcessException("Id should not be entered, while registering the doctor");
     }
 
     @Override
     public Object getUser(String id, String email) {
-        if (id != null && !id.trim().isEmpty()) {
+        if (id != null && !id.trim().isEmpty() && email != null && !email.trim().isEmpty()) {
             id = id.trim().toUpperCase();
             if (id.startsWith("PAT")) {
-                return patientRepository.findByIdAndEmail(id, email).orElse(null);
+                return patientRepository.findByIdAndEmail(id, email).orElseThrow(() -> new UnableToProcessException("Patient not found"));
             } else if (id.startsWith("DOC")) {
-                return doctorRepository.findByIdAndEmail(id, email).orElse(null);
+                return doctorRepository.findByIdAndEmail(id, email).orElseThrow(() -> new UnableToProcessException("Doctor not found"));
             }
         }
-        return null;
+        throw new UnableToProcessException("Please enter valid userId and email");
     }
 }

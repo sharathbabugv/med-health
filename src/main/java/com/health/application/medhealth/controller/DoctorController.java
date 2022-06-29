@@ -22,17 +22,6 @@ public class DoctorController {
 
     private final UserService userService;
 
-    @PostMapping("/register")
-    public ResponseEntity<?> registerDoctor(@RequestBody Doctor doctor) {
-        Doctor dto = userService.saveDoctor(doctor);
-        if (dto != null) {
-            UserCreationMessageDTO messageDTO = new UserCreationMessageDTO(dto.getId(), "Doctor registered successfully");
-            return new ResponseEntity<>(messageDTO, HttpStatus.CREATED);
-        } else {
-            throw new UnableToProcessException("Doctor is not created");
-        }
-    }
-
     @PostMapping("/list")
     public ResponseEntity<?> getUserDetails(@RequestBody FetchDetailsDTO fetchDetailsDTO) {
         String id = fetchDetailsDTO.getUserId();
