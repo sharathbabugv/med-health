@@ -42,13 +42,13 @@ public final class Doctor implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<SimpleGrantedAuthority> authorities = new ArrayList<SimpleGrantedAuthority>();
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_DOCTOR"));
         return authorities;
     }
 
     public String getExperience() {
-        return CustomUtils.getExperience(this.workStartDate);
+        return CustomUtils.getDifferenceBetweenDates(this.workStartDate);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.health.application.medhealth.config;
 
-import com.health.application.medhealth.dto.Illness;
+import com.health.application.medhealth.dto.DiagnosisMail;
+import com.health.application.medhealth.dto.IllnessMail;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,21 +22,32 @@ public class KafkaProducerConfig {
     private String bootStrapServers;
 
     @Bean
-    public Map<String, Object> producerConfiguration() {
+    public ProducerFactory<String, IllnessMail> producerConfiguration() {
         Map<String, Object> configurations = new HashMap<>();
         configurations.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootStrapServers);
         configurations.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         configurations.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
-        return configurations;
+        return new DefaultKafkaProducerFactory<>(configurations);
     }
 
     @Bean
-    public ProducerFactory<String, Illness> producerFactory() {
-        return new DefaultKafkaProducerFactory<>(producerConfiguration());
+    public KafkaTemplate<String, IllnessMail> kafkaTemplate() {
+        return new KafkaTemplate<>(producerConfiguration());
     }
 
+
     @Bean
-    public KafkaTemplate<String, Illness> kafkaTemplate() {
-        return new KafkaTemplate<>(producerFactory());
+    public ProducerFactory<String, DiagnosisMail> diagnosisMailProducerFactory() {
+        Map<String, Object> configurations = new HashMap<>();
+        configurations.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootStrapServers);
+        configurations.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        configurations.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+        return new DefaultKafkaProducerFactory<>(configurations);
+    }
+
+
+    @Bean
+    public KafkaTemplate<String, DiagnosisMail> mailKafkaTemplate() {
+        return new KafkaTemplate<>(diagnosisMailProducerFactory());
     }
 }

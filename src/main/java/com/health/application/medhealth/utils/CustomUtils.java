@@ -42,7 +42,6 @@ public class CustomUtils {
         throw new UnableToProcessException("Username is either empty or doesn't match the minimum characters of 3");
     }
 
-
     public static boolean isStringNotNull(String value) {
         return isStringNotNull(value, 0);
     }
@@ -83,7 +82,7 @@ public class CustomUtils {
         return doctorSpecificDTO;
     }
 
-    public static String getExperience(LocalDate start) {
+    public static String getDifferenceBetweenDates(LocalDate start) {
         Period period = Period.between(start, LocalDate.now());
         int year = period.getYears();
         int month = period.getMonths();
@@ -99,4 +98,5 @@ public class CustomUtils {
             return year + (year == 1 ? " year" : " years");
         }
     }
+
 }

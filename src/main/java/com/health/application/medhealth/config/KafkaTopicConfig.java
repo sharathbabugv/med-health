@@ -10,4 +10,8 @@ public class KafkaTopicConfig {
     public NewTopic sendMailTopic(){
         return TopicBuilder.name("topic-send-email").build();
     }
+
+    public NewTopic sendPrescriptionTopic(){
+        return TopicBuilder.name("topic-send-prescription").build();
+    }
 }

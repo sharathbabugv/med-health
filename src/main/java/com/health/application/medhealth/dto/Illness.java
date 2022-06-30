@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 public class Illness {
     private String patientId;
     private String doctorId;
+    private String appointmentId;
     private String illness;
 }

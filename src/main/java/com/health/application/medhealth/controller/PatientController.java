@@ -2,12 +2,12 @@ package com.health.application.medhealth.controller;
 
 import com.health.application.medhealth.dto.*;
 import com.health.application.medhealth.exceptions.UnableToProcessException;
+import com.health.application.medhealth.services.MessagingService;
 import com.health.application.medhealth.services.UserService;
 import com.health.application.medhealth.utils.CustomUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -19,7 +19,7 @@ import java.util.Map;
 public class PatientController {
 
     private final UserService userService;
-    private final KafkaTemplate<String, Illness> kafkaTemplate;
+    private final MessagingService<IllnessMail> mailMessagingService;
 
     @PostMapping("/list")
     public ResponseEntity<?> getUserDetails(@RequestBody FetchDetailsDTO fetchDetailsDTO) {
@@ -42,12 +42,20 @@ public class PatientController {
     }
 
     @PostMapping("/send-mail")
-    public ResponseEntity<?> bookAppointment(@RequestBody Illness illness) {
-        kafkaTemplate.send("topic-send-email", illness);
-
+    public ResponseEntity<?> sendEmail(@RequestBody Illness illness) {
+        IllnessMail illnessMail = userService.sendMail(illness);
+        this.mailMessagingService.sendMessageToTopic("topic-send-email", illnessMail);
         Map<String, String> map = new HashMap<>();
-        map.put("acknowledgement", "Email has been sent to Dr.Jack at jack@abcd.com");
-        map.put("message", "Hi User, your concern has been noted. Dr.Jack will call you in 30 minutes");
+        map.put("acknowledgement", String.format("Email has been sent to Dr.%s at %s", illnessMail.getDoctorName(), illnessMail.getDoctorEmail()));
+        map.put("message", String.format("Hi %s, your concern has been noted. Dr.%s will call you in 30 minutes", illnessMail.getPatientName(), illnessMail.getDoctorName()));
         return ResponseEntity.ok().body(map);
     }
+
+    @PostMapping("/diagnosis")
+    public ResponseEntity<?> getPatientDiagnosisList(@RequestBody GetDiagnosisForIdDTO getDiagnosisForIdDTO) {
+        return ResponseEntity.ok(userService.findDiagnosisForId(getDiagnosisForIdDTO.getId(), "PAT"));
+    }
 }
+
+// zookeeper-server-start.bat ../../config/zookeeper.properties
+// kafka-server-start.bat ../../config/server.properties
