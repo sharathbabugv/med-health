@@ -35,13 +35,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             id = id.trim().toUpperCase();
 
             if (id.startsWith("PAT")) {
+                log.info("loadUserByUsername : patient..");
                 Optional<Patient> patientDTO = patientRepository.findById(id);
                 return patientDTO.orElseThrow(() -> new UsernameNotFoundException("Patient not found"));
             } else if (id.startsWith("DOC")) {
+                log.info("loadUserByUsername : doctor..");
                 Optional<Doctor> doctorDTO = doctorRepository.findById(id);
                 return doctorDTO.orElseThrow(() -> new UsernameNotFoundException("Doctor not found"));
             }
         }
+        log.warn("User Id not found");
         throw new UsernameNotFoundException("User Id not found");
     }
 
@@ -49,10 +52,17 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public Patient savePatient(Patient patient) {
         isPatientValid(patient);
         if (patient.getId() == null || patient.getId().trim().isEmpty()) {
-            log.info("Saving new patient {} to the database", patient.getUsername());
-            patient.setPassword(passwordEncoder.encode(patient.getPassword()));
-            return patientRepository.save(patient);
+            if (validateEmail(patient.getEmail()) && patientRepository.findByEmail(patient.getEmail().trim()).isEmpty()) {
+                log.info("Saving new patient {} to the database", patient.getUsername());
+                patient.setEmail(patient.getEmail().trim());
+                patient.setPassword(passwordEncoder.encode(patient.getPassword()));
+                return patientRepository.save(patient);
+            } else {
+                log.error("Email ID already exists in our database or is invalid. Accepted domain is gmail.com. Please check and try again");
+                throw new UnableToProcessException("Email ID already exists in our database or is invalid. Accepted domain is gmail.com. Please check and try again");
+            }
         }
+        log.error("Id should not be entered, while registering the doctor");
         throw new UnableToProcessException("Id should not be entered, while registering the patient");
     }
 
@@ -60,10 +70,17 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public Doctor saveDoctor(Doctor doctor) {
         isDoctorValid(doctor);
         if (doctor.getId() == null || doctor.getId().trim().isEmpty()) {
-            log.info("Saving new doctor {} to the database", doctor.getUsername());
-            doctor.setPassword(passwordEncoder.encode(doctor.getPassword()));
-            return doctorRepository.save(doctor);
+            if (validateEmail(doctor.getEmail()) && doctorRepository.findByEmail(doctor.getEmail().trim()).isEmpty()) {
+                log.info("Saving new doctor {} to the database", doctor.getUsername());
+                doctor.setEmail(doctor.getEmail().trim());
+                doctor.setPassword(passwordEncoder.encode(doctor.getPassword()));
+                return doctorRepository.save(doctor);
+            } else {
+                log.error("Email ID already exists in our database or is invalid. Accepted domain is gmail.com. Please check and try again");
+                throw new UnableToProcessException("Email ID already exists in our database or is invalid. Accepted domain is gmail.com. Please check and try again");
+            }
         }
+        log.error("Id should not be entered, while registering the doctor");
         throw new UnableToProcessException("Id should not be entered, while registering the doctor");
     }
 
@@ -72,11 +89,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if (isStringNotNull(id) && isStringNotNull(email)) {
             id = id.trim().toUpperCase();
             if (id.startsWith("PAT")) {
+                log.info("User is patient..");
                 return patientRepository.findByIdAndEmail(id, email).orElseThrow(() -> new UnableToProcessException("Patient not found"));
             } else if (id.startsWith("DOC")) {
+                log.info("User is doctor..");
                 return doctorRepository.findByIdAndEmail(id, email).orElseThrow(() -> new UnableToProcessException("Doctor not found"));
             }
         }
+        log.warn("Please enter valid userId and email");
         throw new UnableToProcessException("Please enter valid userId and email");
     }
 
@@ -98,6 +118,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             }
             return specialityDTOList;
         }
+        log.warn("Please enter valid speciality");
         throw new UnableToProcessException("Please enter valid speciality");
     }
 
@@ -109,13 +130,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 Doctor doctor = doctorRepository.findById(appointment.getDoctorId()).orElseThrow(() -> new UnableToProcessException("Doctor Id not found"));
                 appointment.setStatus(AppointmentStatus.OPENED.name());
                 appointmentRepository.save(appointment);
+                log.info("Appointment saved..");
                 Map<String, String> messageMap = new HashMap<>();
                 String message = String.format("Dear %s, Thanks for choosing Med App. You have booked %s for your medical appointment.", patient.getName(), "Dr." + doctor.getName());
                 messageMap.put("message", message);
                 return messageMap;
             }
+            log.warn("Id should not be entered, while registering the patient");
             throw new UnableToProcessException("Please enter valid Patient/Doctor ID");
         }
+        log.warn("Id should not be entered, while registering the patient");
         throw new UnableToProcessException("Id should not be entered, while registering the patient");
     }
 
@@ -143,8 +167,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
                 return illnessMail;
             }
+            log.warn("Please enter valid Patient/Doctor/Appointment ID");
             throw new UnableToProcessException("Patient ID and Doctor ID is not matching for the given Appointment ID");
         }
+        log.warn("Please enter valid Patient/Doctor/Appointment ID");
         throw new UnableToProcessException("Please enter valid Patient/Doctor/Appointment ID");
     }
 
@@ -154,6 +180,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 && isStringNotNull(diagnosis.getAppointmentId()) && diagnosis.getPrescription() != null && !diagnosis.getPrescription().isEmpty()) {
             Appointment appointment = appointmentRepository.findById(Long.valueOf(diagnosis.getAppointmentId())).orElseThrow(() -> new UnableToProcessException("Appointment Id not found"));
             if (appointment.getDoctorId().equals(diagnosis.getDoctorId()) && appointment.getPatientId().equals(diagnosis.getPatientId())) {
+                log.info("sendPrescription validation success");
                 appointmentRepository.updateStatus(AppointmentStatus.PRESCRIPTION_SENT.name(), Long.valueOf(diagnosis.getAppointmentId()));
 
                 diagnosisRepository.save(diagnosis);
@@ -176,8 +203,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
                 return diagnosisMail;
             }
+            log.warn("Patient ID and Doctor ID is not matching for the given Appointment ID");
             throw new UnableToProcessException("Patient ID and Doctor ID is not matching for the given Appointment ID");
         }
+        log.warn("Please enter all the required details");
         throw new UnableToProcessException("Please enter all the required details");
     }
 
@@ -186,16 +215,17 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if (isStringNotNull(id)) {
             id = id.trim().toUpperCase();
             List<Diagnosis> diagnosisList = new ArrayList<>();
-            if (id.startsWith(check) && "PAT".equals(check)) {
+            if (id.startsWith(check) && "PAT" .equals(check)) {
                 diagnosisList.addAll(diagnosisRepository.findByPatientId(id));
-            } else if (id.startsWith(check) && "DOC".equals(check)) {
+            } else if (id.startsWith(check) && "DOC" .equals(check)) {
                 diagnosisList.addAll(diagnosisRepository.findByDoctorId(id));
             } else {
+                log.warn("Invalid ID. Please try again with valid ID");
                 throw new UnableToProcessException("Invalid ID. Please try again with valid ID");
             }
             return diagnosisList;
         }
-
+        log.warn("Please enter valid ID");
         throw new UnableToProcessException("Please enter valid ID");
     }
 

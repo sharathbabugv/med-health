@@ -34,9 +34,7 @@ public class DoctorController {
 
     @PostMapping("/send-diagnosis")
     public ResponseEntity<?> sendDiagnosis(@RequestBody Diagnosis diagnosis) {
-
         DiagnosisMail diagnosisMail = userService.sendPrescription(diagnosis);
-
         Map<String, String> messageMap = new HashMap<>();
         messageMap.put("acknowledgement", "Email sent to " + diagnosisMail.getPatientEmail());
         messageMap.put("message", "Prescription has been sent. Thank you Dr." + diagnosisMail.getDoctorName());

@@ -54,7 +54,7 @@ class UserServiceImplTest {
     void test_valid_patient_loadUserByUsername() {
         String id = "PAT101";
 
-        Patient patient = new Patient(id, "test@email.com", "password", "test", "M",
+        Patient patient = new Patient(id, "test@gmail.com", "password", "test", "M",
                 LocalDate.of(1996, 6, 6), "1234567890");
 
         when(patientRepository.findById(id)).thenReturn(Optional.of(patient));
@@ -101,7 +101,7 @@ class UserServiceImplTest {
 
     @Test
     void test_valid_savePatient() {
-        Patient patient = new Patient(null, "test@email.com", "password", "test", "M",
+        Patient patient = new Patient(null, "sharathraju@gmail.com", "password", "test", "M",
                 LocalDate.of(1996, 6, 6), "1234567890");
         userService.savePatient(patient);
         verify(patientRepository).save(patient);
@@ -109,7 +109,7 @@ class UserServiceImplTest {
 
     @Test
     void test_enteringIdWhileRegistering_savePatient() {
-        Patient patient = new Patient("PAT_101", "test@email.com", "password", "test", "M",
+        Patient patient = new Patient("PAT_101", "test@gmail.com", "password", "test", "M",
                 LocalDate.of(1996, 6, 6), "1234567890");
         UnableToProcessException thrown = Assertions
                 .assertThrows(UnableToProcessException.class, () -> userService.savePatient(patient), "Id should not be entered, while registering the patient");
@@ -119,7 +119,7 @@ class UserServiceImplTest {
 
     @Test
     void test_invalidUsernameLength_savePatient() {
-        Patient patient = new Patient(null, "test@email.com", "password", "ab", "M",
+        Patient patient = new Patient(null, "test@gmail.com", "password", "ab", "M",
                 LocalDate.of(1996, 6, 6), "1234567890");
         UnableToProcessException thrown = Assertions
                 .assertThrows(UnableToProcessException.class, () -> userService.savePatient(patient), "Username is either empty or doesn't match the minimum characters of 3");
@@ -129,7 +129,7 @@ class UserServiceImplTest {
 
     @Test
     void test_invalidPasswordLength_savePatient() {
-        Patient patient = new Patient(null, "test@email.com", "pass", "abcd", "M",
+        Patient patient = new Patient(null, "test@gmail.com", "pass", "abcd", "M",
                 LocalDate.of(1996, 6, 6), "1234567890");
         UnableToProcessException thrown = Assertions
                 .assertThrows(UnableToProcessException.class, () -> userService.savePatient(patient), "Password is either empty or doesn't match the minimum characters of 6");
@@ -149,7 +149,7 @@ class UserServiceImplTest {
 
     @Test
     void test_mandatoryDOBEmpty_savePatient() {
-        Patient patient = new Patient(null, "test@email.com", "password", "abcd", "M",
+        Patient patient = new Patient(null, "test@gmail.com", "password", "abcd", "M",
                 null, "1234567890");
         UnableToProcessException thrown = Assertions
                 .assertThrows(UnableToProcessException.class, () -> userService.savePatient(patient), "Please enter all the required fields to register");
@@ -159,8 +159,11 @@ class UserServiceImplTest {
 
     @Test
     void test_valid_saveDoctor() {
-        Doctor doctor = new Doctor(null, "test@gmail.com", "password", "test", "F",
+        Doctor doctor = new Doctor(null, "gvsharath@gmail.com", "password", "test", "F",
                 LocalDate.of(1996, 6, 6), "1234567890", "MBBS", "ENT", LocalDate.of(2020, 6, 6), null);
+
+        when(doctorRepository.save(any(Doctor.class))).thenReturn(doctor);
+
         userService.saveDoctor(doctor);
         verify(doctorRepository).save(doctor);
     }
@@ -207,7 +210,7 @@ class UserServiceImplTest {
 
     @Test
     void test_mandatoryDOBEmpty_saveDoctor() {
-        Doctor doctor = new Doctor("DOC101", "test@email.com", "PASSWORD", "test", "F",
+        Doctor doctor = new Doctor("DOC101", "test@gmail.com", "PASSWORD", "test", "F",
                 null, "1234567890", "MBBS", "ENT", LocalDate.of(2020, 6, 6), null);
         UnableToProcessException thrown = Assertions
                 .assertThrows(UnableToProcessException.class, () -> userService.saveDoctor(doctor), "Please enter all the required fields to register");
@@ -218,7 +221,7 @@ class UserServiceImplTest {
     @Test
     void test_doctor_getUser() {
         String id = "DOC101";
-        String email = "test@email.com";
+        String email = "test@gmail.com";
 
         Doctor doctor = new Doctor(id, email, "PASSWORD", "test", "F",
                 LocalDate.of(1996, 6, 6), "1234567890", "MBBS", "ENT", LocalDate.of(2020, 6, 6), null);
@@ -231,7 +234,7 @@ class UserServiceImplTest {
     @Test
     void test_patient_getUser() {
         String id = "PAT101";
-        String email = "test@email.com";
+        String email = "test@gmail.com";
         Patient patient = new Patient(id, email, "password", "test", "M",
                 LocalDate.of(1996, 6, 6), "1234567890");
         when(patientRepository.findByIdAndEmail(id, email)).thenReturn(Optional.of(patient));
@@ -251,7 +254,7 @@ class UserServiceImplTest {
     @Test
     void test__invalid_patientNotFound_getUser() {
         String id = "PAT101";
-        String email = "test@email.com";
+        String email = "test@gmail.com";
         when(patientRepository.findByIdAndEmail(id, email)).thenReturn(Optional.empty());
 
         UnableToProcessException thrown = Assertions
@@ -263,7 +266,7 @@ class UserServiceImplTest {
     @Test
     void test__invalid_doctorNotFound_getUser() {
         String id = "DOC101";
-        String email = "test@email.com";
+        String email = "test@gmail.com";
         when(doctorRepository.findByIdAndEmail(id, email)).thenReturn(Optional.empty());
 
         UnableToProcessException thrown = Assertions
@@ -332,10 +335,10 @@ class UserServiceImplTest {
     @Test
     void test_sendMail() {
         Appointment appointment = new Appointment(1L, "PAT101", "DOC101", null);
-        Patient patient = new Patient("PAT101", "test@email.com", "password", "test-user", "M",
+        Patient patient = new Patient("PAT101", "test@gmail.com", "password", "test-user", "M",
                 LocalDate.of(1996, 6, 6), "1234567890");
         Doctor doctor = new Doctor("DOC101", "test@gmail.com", "password", "test", "F",
-                LocalDate.of(1996, 6, 6), "1234567890", "MBBS", "ENT", LocalDate.of(2020, 6, 6), null);
+                LocalDate.of(1996, 6, 6), "1234567890", "MBBS", "ENT", LocalDate.of(2021, 6, 6), null);
 
         when(patientRepository.findById("PAT101")).thenReturn(Optional.of(patient));
         when(doctorRepository.findById("DOC101")).thenReturn(Optional.of(doctor));
@@ -379,7 +382,7 @@ class UserServiceImplTest {
         Appointment appointment = new Appointment(1L, "PAT101", "DOC101", null);
         when(appointmentRepository.findById(1L)).thenReturn(Optional.of(appointment));
 
-        Patient patient = new Patient("PAT101", "test@email.com", "password", "test-user", "M",
+        Patient patient = new Patient("PAT101", "test@gmail.com", "password", "test-user", "M",
                 LocalDate.of(1996, 6, 6), "1234567890");
         when(patientRepository.findById("PAT101")).thenReturn(Optional.of(patient));
 
@@ -455,12 +458,12 @@ class UserServiceImplTest {
         diagnosis.setPatientId("PAT101");
         diagnosis.setPrescription(List.of(mock(Prescription.class)));
 
-        Patient patient = new Patient("PAT101", "test@email.com", "password", "test-user", "M",
+        Patient patient = new Patient("PAT101", "test@gmail.com", "password", "test-user", "M",
                 LocalDate.of(1996, 6, 6), "1234567890");
         when(patientRepository.findById("PAT101")).thenReturn(Optional.of(patient));
 
         Doctor doctor = new Doctor("DOC101", "test@gmail.com", "password", "test", "F",
-                LocalDate.of(1996, 6, 6), "1234567890", "MBBS", "ENT", LocalDate.of(2020, 6, 6), null);
+                LocalDate.of(1996, 6, 6), "1234567890", "MBBS", "ENT", LocalDate.of(2022, 6, 16), null);
         when(doctorRepository.findById("DOC101")).thenReturn(Optional.of(doctor));
 
         Appointment appointment = new Appointment(1L, "PAT101", "DOC101", null);
@@ -606,7 +609,7 @@ class UserServiceImplTest {
 
         Appointment appointment = new Appointment(1L, "PAT101", "DOC101", null);
         when(appointmentRepository.findById(1L)).thenReturn(Optional.of(appointment));
-        Patient patient = new Patient("PAT101", "test@email.com", "password", "test-user", "M",
+        Patient patient = new Patient("PAT101", "test@gmail.com", "password", "test-user", "M",
                 LocalDate.of(1996, 6, 6), "1234567890");
         when(patientRepository.findById("PAT101")).thenReturn(Optional.of(patient));
 

@@ -8,4 +8,6 @@ import java.util.Optional;
 public interface PatientRepository extends CrudRepository<Patient, String> {
 
     Optional<Patient> findByIdAndEmail(String id, String email);
+
+    Optional<Patient> findByEmail(String email);
 }

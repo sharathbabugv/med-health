@@ -35,8 +35,8 @@ public class JwtOncePerRequestFilter extends OncePerRequestFilter {
             String requestTokenHeader = request.getHeader(AUTHORIZATION);
             if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
                 try {
-                    String token = requestTokenHeader.substring("Bearer ".length());
-                    Algorithm algorithm = Algorithm.HMAC256("secret".getBytes(StandardCharsets.UTF_8));
+                    String token = requestTokenHeader.substring("Bearer " .length());
+                    Algorithm algorithm = Algorithm.HMAC256("secret" .getBytes(StandardCharsets.UTF_8));
                     JWTVerifier jwtVerifier = JWT.require(algorithm).build();
                     DecodedJWT decodedJWT = jwtVerifier.verify(token);
 
@@ -46,7 +46,7 @@ public class JwtOncePerRequestFilter extends OncePerRequestFilter {
                     Arrays.stream(roles).forEach(role -> authorities.add(new SimpleGrantedAuthority(role)));
                     UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, null, authorities);
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-
+                    log.info("Token retrieved successfully!");
                     filterChain.doFilter(request, response);
                 } catch (Exception e) {
                     log.error("Error generating token {} ", e.getMessage());
@@ -56,6 +56,7 @@ public class JwtOncePerRequestFilter extends OncePerRequestFilter {
                     Map<String, String> errorMap = new HashMap<>();
                     errorMap.put("error_message", e.getMessage());
                     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                    log.error("doFilterInternal {}", e.getMessage());
                     new ObjectMapper().writeValue(response.getOutputStream(), errorMap);
                 }
             } else {

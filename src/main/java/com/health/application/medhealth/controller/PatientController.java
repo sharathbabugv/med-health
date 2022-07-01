@@ -56,6 +56,3 @@ public class PatientController {
         return ResponseEntity.ok(userService.findDiagnosisForId(getDiagnosisForIdDTO.getId(), "PAT"));
     }
 }
-
-// zookeeper-server-start.bat ../../config/zookeeper.properties
-// kafka-server-start.bat ../../config/server.properties

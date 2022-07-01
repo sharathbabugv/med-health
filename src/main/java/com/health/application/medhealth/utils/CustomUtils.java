@@ -8,12 +8,15 @@ import com.health.application.medhealth.exceptions.UnableToProcessException;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CustomUtils {
     public static boolean isPatientValid(Patient patient) {
         if (isStringNotNull(patient.getName(), 2)) {
             if (isStringNotNull(patient.getPassword(), 6)) {
-                if (isStringNotNull(patient.getPhoneNumber()) && isStringNotNull(patient.getEmail()) && patient.getDateOfBirth() != null) {
+                if (isStringNotNull(patient.getPhoneNumber()) && patient.getDateOfBirth() != null &&
+                        isStringNotNull(patient.getEmail())) {
                     return true;
                 } else {
                     throw new UnableToProcessException("Please enter all the required fields to register");
@@ -30,16 +33,23 @@ public class CustomUtils {
             if (isStringNotNull(doctor.getPassword(), 6)) {
                 if (isStringNotNull(doctor.getPhoneNumber())
                         && isStringNotNull(doctor.getQualification()) && doctor.getWorkStartDate() != null
-                        && isStringNotNull(doctor.getSpeciality()) && isStringNotNull(doctor.getEmail()) && doctor.getDateOfBirth() != null) {
+                        && isStringNotNull(doctor.getSpeciality())
+                        && isStringNotNull(doctor.getEmail())
+                        && doctor.getDateOfBirth() != null) {
                     return true;
                 } else {
                     throw new UnableToProcessException("Please enter all the required fields to register");
                 }
-            } else {
-                throw new UnableToProcessException("Password is either empty or doesn't match the minimum characters of 6");
             }
+            throw new UnableToProcessException("Password is either empty or doesn't match the minimum characters of 6");
         }
         throw new UnableToProcessException("Username is either empty or doesn't match the minimum characters of 3");
+    }
+
+    public static boolean validateEmail(String email) {
+        Pattern pattern = Pattern.compile("^[a-z0-9](\\.?[a-z0-9]){5,}@gmail\\.com$");
+        Matcher mat = pattern.matcher(email);
+        return mat.matches();
     }
 
     public static boolean isStringNotNull(String value) {
